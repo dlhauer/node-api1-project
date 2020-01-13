@@ -56,6 +56,35 @@ server.post('/api/users', (req, res) => {
   }
 })
 
+server.put('/api/users/:id', (req, res) => {
+  const id = req.params.id;
+
+  db.findById(id)
+    .then( user => {
+      if (!user) {
+        res.status(404).json({ message: "The user with the specified ID does not exist." })
+      }
+      else {
+        if (!req.body.name || !req.body.bio) {
+          res.status(400).json( { errorMessage: "Please provide name and bio for the user." } );
+          // res.end();
+        }
+        else {
+          const userData = req.body;
+          db.update(id, userData)
+            .then( () => {
+              res.status(200).json('Successfully updated.');
+            })
+            .catch( () => {
+              res.status(500).json( { errorMessage: "The user information could not be modified." } );
+            })
+        }
+      }
+  })
+})
+
+
+
 const port = 5000;
 
-server.listen(port, () => console.log(`\n ** API on port ${port} ** \n`));
+server.listen(port, () => console.log(`\n ** API on port ${port} ** \n`))
